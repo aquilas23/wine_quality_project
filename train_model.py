@@ -1,12 +1,17 @@
+import subprocess
+subprocess.call(["pip", "install", "fsspec", "s3fs"])
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 import pickle
 
-# Load Dataset
-url = "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv"
-data = pd.read_csv(url, delimiter=";")
+
+input_path = "s3://wine-quality-dataset-680/winequality-red.csv"
+
+# Load dataset
+data = pd.read_csv(input_path, delimiter=";")
 
 # Preprocessing
 X = data.drop(columns=["quality"])
