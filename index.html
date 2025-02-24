@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine Quality Predictor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+        button:disabled {
+            background: gray;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: green;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Wine Quality Predictor</h2>
+        <form id="wineForm">
+            <input type="number" name="fixed_acidity" placeholder="Fixed Acidity" required>
+            <input type="number" name="volatile_acidity" placeholder="Volatile Acidity" required>
+            <input type="number" name="citric_acid" placeholder="Citric Acid" required>
+            <input type="number" name="residual_sugar" placeholder="Residual Sugar" required>
+            <input type="number" name="chlorides" placeholder="Chlorides" required>
+            <input type="number" name="free_sulfur_dioxide" placeholder="Free Sulfur Dioxide" required>
+            <input type="number" name="total_sulfur_dioxide" placeholder="Total Sulfur Dioxide" required>
+            <input type="number" name="density" placeholder="Density" required>
+            <input type="number" name="pH" placeholder="pH" required>
+            <input type="number" name="sulfates" placeholder="Sulfates" required>
+            <input type="number" name="alcohol" placeholder="Alcohol" required>
+            <button type="submit">Predict Wine Quality</button>
+        </form>
+        <div class="result" id="predictionResult"></div>
+    </div>
+
+    <script>
+        document.getElementById("wineForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            let formData = new FormData(this);
+            let data = {};
+
+            formData.forEach((value, key) => {
+                data[key.replace("_", " ")] = parseFloat(value);
+            });
+
+            document.querySelector("button").disabled = true;
+            document.getElementById("predictionResult").innerHTML = "Predicting...";
+
+            try {
+                let response = await fetch("https://<your-sagemaker-endpoint-url>/predict", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ "features": Object.values(data) })
+                });
+
+                let result = await response.json();
+                document.getElementById("predictionResult").innerHTML = "Predicted Wine Quality: " + result.prediction;
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("predictionResult").innerHTML = "Prediction failed.";
+            }
+
+            document.querySelector("button").disabled = false;
+        });
+    </script>
+
+</body>
+</html>
